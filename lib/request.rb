@@ -13,17 +13,10 @@ class Request
     @version = @request_line[2]
     @headers = parse_headers(@request_string_lines)
 
-    params_in_query = @resource.include?('?')
+    query_params = parse_query_params(@resource)
+    body_params = parse_body_params(@request_string_lines)
 
-    if params_in_query
-      @query_params_elements = @resource.partition('?').last.split('&')
-      @params = Hash[@query_params_elements.map { |param| param.split('=') }]
-    else
-      @body_params_line = @request_string_lines.select { |line| line.include?('=') }[0]
-      params_in_body = !@body_params_line.nil?
-      @params = params_in_body ? @body_params_line.split('&').map { |pair| pair.split('=') }.to_h : {}
-    end
-
+    @params = query_params.merge(body_params)
   end
 
     def parse_request_line(request_line_string)
@@ -32,14 +25,31 @@ class Request
 
     def parse_headers(request_string_lines)
       request_string_lines.map.with_index {
-         |line, index| line.split(": ") unless index == 0 
+        |line, i| line.split(": ") unless line.split(": ").length <= 1 #Ändra detta så att man inte kör split 2 ggr
       }.compact.to_h
     end
 
-    def parse_query_params(request_line)
-      
+    def parse_query_params(resource)
+      if resource.include?("?")
+        param_string = resource.split("?").last
+        params_to_h(param_string)
+      else
+        {}
+      end
+    end
+
+    def parse_body_params(request_string_lines)
+      param_line = request_string_lines.find.with_index { |line, i| line.include?("=") unless i == 0}
+      if !param_line.nil?
+        params_to_h(param_line)
+      else
+        {}
+      end
+    end
+
+    def params_to_h(param_string)
+      delimiters = ['&', '=']
+      param_string.split(Regexp.union(delimiters)).each_slice(2).to_h
     end
 end
 
-request_string = File.read('get-fruits-with-filter.request.txt')
-request = Request.new(request_string)
