@@ -1,5 +1,7 @@
-GET /examples HTTP/1.1
-Host: example.com
-User-Agent: ExampleBrowser/1.0
-Accept-Encoding: gzip, deflate
-Accept: */*
+GET /examples?username=grillkorv&password=asddsad HTTP/1.1
+Host: foo.example
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 39
+
+yur=umgg&yes=hell
+

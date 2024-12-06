@@ -8,3 +8,5 @@ gem "minitest", "~> 5.25"
 gem "minitest-reporters", "~> 1.7"
 
 gem 'rubocop', require: false
+
+gem 'debug', '~> 1.9', '>= 1.9.2'
