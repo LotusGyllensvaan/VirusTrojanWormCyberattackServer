@@ -1,6 +1,7 @@
 require 'socket'
 require_relative 'request'
 require_relative 'router'
+require_relative 'response'
 
 class HTTPServer
 
@@ -12,9 +13,13 @@ class HTTPServer
         server = TCPServer.new(@port)
         puts "Listening on #{@port}"
         router = Router.new
-        router.add_route(:get, "/hello") #do
-          #"<h1>Hello, World!</h1>"
-        #end
+        
+        router.add_route(:get, "/hello") do
+            poopie = 10
+            @poop = 5 + poopie
+            puts "YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh"
+            erb("\index.erb")
+        end
 
         while session = server.accept
             data = ""
@@ -28,26 +33,22 @@ class HTTPServer
 
             request = Request.new(data)
 
-            match = router.match_route(request)
-            #status, html = router.match_route(request)
-            #Sen kolla om resursen (filen finns)
-            if match
-                html = "<h1>Hello, World!</h1>"
-                status = 200
-            else
-                html = "<h1>Oh no, World!</h1>"
-                status = 404
-            end
+            status, html = router.match_route(request)
 
-            # Nedanstående bör göras i er Response-klass
             response = Response.new(session, status, html)
-            session.print "HTTP/1.1 #{status}\r\n"
-            session.print "Content-Type: text/html\r\n"
-            session.print "\r\n"
-            session.print html
-            session.close
+            response.respond
         end
     end
+
+      #render erb template
+    def erb(template)
+        #search in default views folder
+        template_path = File.join("views", "#{template}")
+        raise "Template not found: #{template_path}" unless File.exist?(template_path)
+        erb_content = File.read(template_path)
+        ERB.new(erb_content).result(binding)
+    end
+
 end
 
 
