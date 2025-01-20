@@ -12,4 +12,7 @@ class Response
     @session.print @html
     @session.close
   end
+
+
+
 end

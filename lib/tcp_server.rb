@@ -14,10 +14,18 @@ class HTTPServer
         puts "Listening on #{@port}"
         router = Router.new
         
-        router.add_route(:get, "/hello") do
+        router.get "/hello?earth=4&id=1" do |earth, id|
+            puts "---------"
+            p earth
+            p id
+            puts "---------"
+            erb("\hello.erb")
+        end
+
+        router.get "/index" do
             poopie = 10
             @poop = 5 + poopie
-            puts "YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAh"
+            
             erb("\index.erb")
         end
 
