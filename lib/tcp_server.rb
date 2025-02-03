@@ -13,20 +13,20 @@ class HTTPServer
         server = TCPServer.new(@port)
         puts "Listening on #{@port}"
         router = Router.new
-        
-        router.get "/hello?earth=4&id=1" do |earth, id|
+
+        router.get '/index/:id/:method' do |id, method|
             puts "---------"
-            p earth
-            p id
+            p @id=id
+            p @method=method
             puts "---------"
-            erb("\hello.erb")
+            erb("\index.erb")
         end
 
-        router.get "/index" do
-            poopie = 10
-            @poop = 5 + poopie
-            
-            erb("\index.erb")
+        def erb(template)
+            template_path = File.join("views", "#{template}")
+            raise "Template not found: #{template_path}" unless File.exist?(template_path)
+            erb_content = File.read(template_path)
+            ERB.new(erb_content).result(binding)
         end
 
         while session = server.accept
@@ -42,19 +42,11 @@ class HTTPServer
             request = Request.new(data)
 
             status, html = router.match_route(request)
-
-            response = Response.new(session, status, html)
+            p content_type = request.headers["Accept"].split(",").first
+            response = Response.new(session, status, html, content_type)
             response.respond
         end
-    end
 
-      #render erb template
-    def erb(template)
-        #search in default views folder
-        template_path = File.join("views", "#{template}")
-        raise "Template not found: #{template_path}" unless File.exist?(template_path)
-        erb_content = File.read(template_path)
-        ERB.new(erb_content).result(binding)
     end
 
 end

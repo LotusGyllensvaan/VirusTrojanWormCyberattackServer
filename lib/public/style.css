@@ -1,0 +1,27 @@
+body {
+  font-family: sans-serif;
+  color: #666;
+  background-color: #4a412a;
+  font-size: x-large;
+  margin: 1em;
+}
+
+h1{
+  color: red;
+}
+
+h2{
+  color: red;
+}
+
+h3{
+  color: goldenrod;
+}
+
+h4{
+  color: blanchedalmond;
+}
+
+h6{
+  color: chocolate;
+}

@@ -3,17 +3,17 @@ require 'erb'
 class Router
   def initialize
     @routes = []
+    add_public_routes()
+  end
+
+  def add_public_routes()
+      public_resources = Dir["public/*"].map { |file| "/#{File.basename(file)}" }
+      public_resources.each { |file| @routes << {method: :get, resource: file} }
   end
 
   def add_route(method, resource, block)
-    #Parameters are declared in resource string:  "/:[parameter]"
-    #ToDo: Read resource -> Find beginning slash -> Read between / and /
-    #-> return to hash of params.
-
-
-
-
-
+    resource.gsub!(/:\w+/, "(\\w+)")
+    resource = Regexp.new(resource)
 
     @routes << {method: method, resource: resource, block: block}
   end
@@ -27,21 +27,18 @@ class Router
   end
 
   def match_route(request)
-    #ToDo: Add parameters to matching
     puts "matching route..."
-    match = @routes.find { |route| route[:method] == request.method && route[:resource] == request.resource }
+    match = @routes.find { |route| route[:method] == request.method && route[:resource].match?(request.resource) }
     puts match ? "match found at #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
 
     if match
       status = 200
+      html = ""
+      if match[:block]
+        match_data = match[:resource].match(request.resource)
 
-      func = match[:block]
-      func_params = func.parameters
-      req_params = request.params
-
-      func_params_to_s = func_params.map { |arrs| arrs.last.to_s }
-
-      html = func.call(*req_params.values_at(*func_params_to_s))
+        html = match[:block].call(*match_data.captures)
+      end
     else
       status = 404
       html = "<h1>404: Page Not Found</h1>"
