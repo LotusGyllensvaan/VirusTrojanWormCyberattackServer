@@ -7,8 +7,8 @@ class Router
   end
 
   def add_public_routes()
-      public_resources = Dir["public/*"].map { |file| "/#{File.basename(file)}" }
-      public_resources.each { |file| @routes << {method: :get, resource: file} }
+      public_files = Dir["public/*"].map { |file| File.new(file) }
+      public_files.each { |file| @routes << {method: :get, resource: "/#{File.basename(file)}", content: File.read(file)} }
   end
 
   def add_route(method, resource, block)
@@ -33,18 +33,18 @@ class Router
 
     if match
       status = 200
-      html = ""
+      content = match[:content]
       if match[:block]
         match_data = match[:resource].match(request.resource)
 
-        html = match[:block].call(*match_data.captures)
+        content = match[:block].call(*match_data.captures)
       end
     else
       status = 404
-      html = "<h1>404: Page Not Found</h1>"
+      content = "<h1>404: Page Not Found</h1>"
     end
 
-    [status, html]
+    [status, content]
   end
 
 end
