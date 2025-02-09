@@ -14,12 +14,8 @@ class HTTPServer
         puts "Listening on #{@port}"
         router = Router.new
 
-        router.get '/index/:id/:method' do |id, urf|
-            #puts "---------"
-            @id=id
-            @urf=urf
-            #puts "---------"
-            erb("\index.erb")
+        router.get '/index' do
+            erb('\test.erb')
         end
 
         router.get '/hello' do
@@ -46,7 +42,8 @@ class HTTPServer
             request = Request.new(data)
 
             status, content = router.match_route(request)
-            content_type = request.headers["Accept"].split(",").first
+            p request.headers
+            content_type = request.headers["Accept"] ? request.headers["Accept"].split(",").first : ""
             response = Response.new(session, status, content, content_type)
             response.respond
         end
