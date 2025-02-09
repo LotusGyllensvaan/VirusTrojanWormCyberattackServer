@@ -15,10 +15,10 @@ class HTTPServer
         router = Router.new
 
         router.get '/index/:id/:method' do |id, urf|
-            puts "---------"
-            p @id=id
-            p @urf=urf
-            puts "---------"
+            #puts "---------"
+            @id=id
+            @urf=urf
+            #puts "---------"
             erb("\index.erb")
         end
 
@@ -38,15 +38,18 @@ class HTTPServer
             while line = session.gets and line !~ /^\s*$/
                 data += line
             end
-            puts "RECEIVED REQUEST"
-            puts "-" * 40
-            puts data
-            puts "-" * 40 
+            #puts "RECEIVED REQUEST"
+            #puts "-" * 40
+            #puts data
+            #puts "-" * 40 
 
             request = Request.new(data)
 
             status, content = router.match_route(request)
             content_type = request.headers["Accept"].split(",").first
+            if content_type == "image/avif"
+              content_type = "image/apng"
+            end
             response = Response.new(session, status, content, content_type)
             response.respond
         end

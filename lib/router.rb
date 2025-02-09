@@ -7,14 +7,16 @@ class Router
   end
 
   def add_public_routes()
-      public_files = Dir["public/*"].map { |file| File.new(file) }
+      public_files = Dir["public/**/*"].filter_map { |path| File.new(path) if File.file?(path) }
       public_files.each { |file| @routes << {method: :get, resource: "/#{File.basename(file)}", content: File.read(file)} }
+      @routes.each { |ro| p ro[:resource] if ro[:content] }
   end
 
   def add_route(method, resource, block)
     resource.gsub!(/:\w+/, "(\\w+)")
-    resource = Regexp.new(resource)
-
+    puts "Regex Resources ----------------"
+    p resource = Regexp.new(resource)
+    puts "--------------------------------"
     @routes << {method: method, resource: resource, block: block}
   end
 
@@ -27,16 +29,17 @@ class Router
   end
 
   def match_route(request)
+    puts "\n"
     puts "matching route..."
     match = @routes.find { |route| route[:method] == request.method && route[:resource].match?(request.resource) }
-    puts match ? "match found at #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
-
+    puts match ? "matched #{request.resource} with #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
+  
     if match
       status = 200
       content = match[:content]
+
       if match[:block]
         match_data = match[:resource].match(request.resource)
-
         content = match[:block].call(*match_data.captures)
       end
     else

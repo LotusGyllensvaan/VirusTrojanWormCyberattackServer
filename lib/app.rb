@@ -1,3 +1,0 @@
-class App < HTTPServer
-  
-end
