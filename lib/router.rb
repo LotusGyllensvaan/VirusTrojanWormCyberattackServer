@@ -8,7 +8,7 @@ class Router
 
   def add_public_routes()
       public_files = Dir["public/**/*"].filter_map { |path| File.new(path) if File.file?(path) }
-      public_files.each { |file| @routes << {method: :get, resource: "/#{File.basename(file)}", content: File.read(file)} }
+      public_files.each { |file| @routes << {method: :get, resource: "/#{file.to_path}", content: File.binread(file)} }
       @routes.each { |ro| p ro[:resource] if ro[:content] }
   end
 
@@ -30,9 +30,9 @@ class Router
 
   def match_route(request)
     puts "\n"
-    puts "matching route..."
+    puts "matching #{request.resource}..."
     match = @routes.find { |route| route[:method] == request.method && route[:resource].match?(request.resource) }
-    puts match ? "matched #{request.resource} with #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
+    puts match ? "matched with #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
   
     if match
       status = 200

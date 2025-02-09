@@ -47,9 +47,6 @@ class HTTPServer
 
             status, content = router.match_route(request)
             content_type = request.headers["Accept"].split(",").first
-            if content_type == "image/avif"
-              content_type = "image/apng"
-            end
             response = Response.new(session, status, content, content_type)
             response.respond
         end
