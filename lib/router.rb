@@ -1,5 +1,3 @@
-require 'erb'
-
 class Router
   def initialize
     @routes = []

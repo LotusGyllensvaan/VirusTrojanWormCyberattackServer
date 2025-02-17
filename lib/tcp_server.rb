@@ -1,4 +1,5 @@
 require 'socket'
+require 'erb'
 require_relative 'request'
 require_relative 'router'
 require_relative 'response'
