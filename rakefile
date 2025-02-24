@@ -8,3 +8,10 @@ Minitest::TestTask.create(:test) do |t|
 end
 
 task :default => :test
+
+task :seed do
+  require "bundler"
+  Bundler.require
+  require_relative 'db/seeder'
+  Seeder.seed!
+end

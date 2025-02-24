@@ -1,21 +1,22 @@
+# frozen_string_literal: true
+require 'cgi'
+
 class Router
   def initialize
     @routes = []
-    add_public_routes()
+    add_public_routes
   end
 
-  def add_public_routes()
-      public_files = Dir["public/**/*"].filter_map { |path| File.new(path) if File.file?(path) }
-      public_files.each { |file| @routes << {method: :get, resource: "/#{file.to_path}", content: File.binread(file)} }
-      @routes.each { |ro| p ro[:resource] if ro[:content] }
+  def add_public_routes
+    Dir.glob('public/**/*').each do |path|
+      next unless File.file?(path)
+      @routes << { method: :get, resource: "/#{path.sub('public/', '')}"}
+    end
   end
 
   def add_route(method, resource, block)
-    resource.gsub!(/:\w+/, "(\\w+)")
-    puts "Regex Resources ----------------"
-    p resource = Regexp.new(resource)
-    puts "--------------------------------"
-    @routes << {method: method, resource: resource, block: block}
+    resource = Regexp.new(resource.gsub(/:\w+/, '(\\w+)'))
+    @routes << { method: method, resource: resource, block: block }
   end
 
   def get(resource, &block)
@@ -27,25 +28,64 @@ class Router
   end
 
   def match_route(request)
-    puts "\n"
-    puts "matching #{request.resource}..."
-    match = @routes.find { |route| route[:method] == request.method && route[:resource].match?(request.resource) }
-    puts match ? "matched with #{match[:method].to_s.upcase} #{match[:resource]}" : "match not found"
-  
-    if match
-      status = 200
-      content = match[:content]
+    
+    puts "\nmatching #{request.resource}..."
+    route = find_route(request)
 
-      if match[:block]
-        match_data = match[:resource].match(request.resource)
-        content = match[:block].call(*match_data.captures)
-      end
-    else
-      status = 404
-      content = "<h1>404: Page Not Found</h1>"
-    end
-
-    [status, content]
+    route ? process_route(route, request) : not_found_response
   end
 
+  private
+
+  def find_route(request)
+    request_resource = CGI.unescape(request.resource)
+    @routes.find do |route|
+      route_resource = route[:resource]
+      route_resource = Regexp.new(Regexp.escape(route[:resource])) if route[:resource].is_a?(String)
+      route[:method] == request.method &&
+        request_resource.match?(route_resource)
+    end
+
+  end
+
+  def process_route(route, request)
+    log_match(route)
+    if dynamic_route?(route)
+      execute_dynamic_route(route, request)
+    else
+      serve_static_asset(route)
+    end
+  end
+
+  def dynamic_route?(route)
+    route[:block].respond_to?(:call)
+  end
+
+  def execute_dynamic_route(route, request)
+    match_data = route[:resource].match(request.resource)
+    content = route[:block].call(*match_data.captures)
+    success_response(content)
+  end
+
+  def serve_static_asset(route)
+    content = File.binread("public#{route[:resource]}")
+    success_response(content)
+  end
+
+  def success_response(content)
+    [200, content]
+  end
+
+  def not_found_response(message = 'Page not found')
+    log_error(message)
+    [404, "<h1>404: #{ERB::Util.html_escape(message)}</h1>"]
+  end
+
+  def log_error(message)
+    puts "ERROR: #{message}"
+  end
+
+  def log_match(route)
+    puts "Matched #{route[:method].to_s.upcase} #{route[:resource]}"
+  end
 end

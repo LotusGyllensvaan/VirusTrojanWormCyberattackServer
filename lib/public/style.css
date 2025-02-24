@@ -12,7 +12,7 @@ html, body {
 }
 
 body {
-  font-family: 'Merriweather', serif;
+  font-family: sans-serif, serif;
   background-color: #e5f4d5;
   color: #2b3a36;
   line-height: 1.6;
@@ -21,42 +21,6 @@ body {
 main {
   flex: 1;
 }
-
-header {
-  background-color: #7da27d; /* Freshwater plant green */
-  color: white;
-  padding: 15px 20px;
-  text-align: center;
-  font-size: 1.5em;
-  margin-bottom: 20px;
-}
-
-nav {
-  background-color: #7da27d;
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-nav select {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  background-color: #f1e5d0; /* Warm sandy color */
-  color: #2b3a36;
-  cursor: pointer;
-  font-size: 1em;
-}
-
-footer {
-  background-color: #7da27d;
-  color: white;
-  padding: 15px;
-  text-align: center;
-  margin-top: auto; /* Ensures footer sticks to bottom */
-}
-
 
 h1 {
   color: #355e3b; /* Rich deep plant green */
@@ -105,28 +69,6 @@ h6 {
   margin-top: 5px;
 }
 
-/* Navigation styling for login and signup */
-.auth-links {
-  display: inline-block;
-  margin-right: 20px;
-}
-
-.auth-link {
-  color: white;
-  background-color: #46785e;
-  padding: 8px 12px;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-  margin-right: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.auth-link:hover {
-  background-color: #355e3b;
-}
-
-/* Product grid layout */
 .product-grid {
   display: flex;
   flex-wrap: wrap;
