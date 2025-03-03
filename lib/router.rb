@@ -39,9 +39,9 @@ class Router
 
   def find_route(request)
     request_resource = CGI.unescape(request.resource)
+    
     @routes.find do |route|
-      route_resource = route[:resource]
-      route_resource = Regexp.new(Regexp.escape(route[:resource])) if route[:resource].is_a?(String)
+      route_resource = route[:resource].is_a?(String) ? Regexp.new(Regexp.escape(route[:resource])) : route[:resource] 
       route[:method] == request.method &&
         request_resource.match?(route_resource)
     end
@@ -80,6 +80,8 @@ class Router
     log_error(message)
     [404, "<h1>404: #{ERB::Util.html_escape(message)}</h1>"]
   end
+
+  #Helper saker: Ta bort innan inlämning
 
   def log_error(message)
     puts "ERROR: #{message}"

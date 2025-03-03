@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rods And Cods</title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="/style.css">
+        <title>Projekt #2</title>
+    </head>
 
-<body>
-  <header>
-    <nav>
-      <div class="auth-links">
-        <a href="/login" class="auth-link">Login</a>
-        <a href="/signup" class="auth-link">Sign Up</a>
-      </div>
-      Welcome to Rods and Cods - Freshwater Fishing Supplies
-    </nav>
-  </header>
+    <body>
+        <h1><%=@a%> + <%=@b%> = <%=@a + @b%></h1>
 
-  <h1>Tackle that Box <%= @id %> </h1>
+        <h1>~Brutal ANIMALS~</h1>
 
-  <div class="product-grid">
+        <div class="product-grid">
+        <ul>
+            <li> 
+                <video width="320" height="240" controls>
+                    <source src="/media/Algonquin Park Trail Cam Footage 2019 [qLTGbLqUDs0].mp4" type="video/mp4" class="product-image">
+                </video>
+            </li>
 
-      <div class="product-card">
-        <video controls>
-          <source src="/planet.mp4" type="video/mp4" class="product-image">
-        </video>
-        <h3>Article</h3>
-        <h4>Description</h4>
-        <h6>Category</h6>
-      </div>
-  </div>
+            <li> 
+                <video width="320" height="240" controls>
+                    <source src="/media/TrailCam.webm" type="video/webm" class="product-image">
+                </video>
+            </li>
 
-  <footer>
-    &copy; <%= Time.now.year %> Rods And Cods. Happy Fishing!
-  </footer>
-</body>
+            <li> 
+                <video width="320" height="240" controls>
+                    <source src="/media/TrailCam1.mp4" type="video/mp4" class="product-image">
+                </video>
+            </li>
+        </ul>
+        </div>
+
+        <h1>Secret Layer of things</h1>
+        <div class="product-grid">
+          <div class="product-card">
+            <h3><%= @product['article'] %></h3>
+            <h4><%= @product['description'] %></h4>
+            <h6><%= @product['category'] %></h6>
+          </div>
+        </div>
+
+    </body>
 </html>

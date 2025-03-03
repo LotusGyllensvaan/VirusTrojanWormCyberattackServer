@@ -13,25 +13,27 @@ class HTTPServer
     @port = port
   end
 
-    def db
-        return @db if @db
-
-        @db = SQLite3::Database.new("../DB/database.sqlite")
-        @db.results_as_hash = true
-        
-        return @db
-    end
+  def db
+    return @db if @db
+    @db = SQLite3::Database.new("../DB/database.sqlite")
+    @db.results_as_hash = true
+    
+    return @db
+  end
 
   def app(router, render)
-    router.get '/index/:id' do |id|
+    router.get '/index/:id/:a/:b' do |id, a, b|
       @id = id
-      @products = db.execute('SELECT * FROM equipment')
-      render.erb('\index.erb', binding)
+      @a = a.to_i
+      @b = b.to_i
+      @product = db.execute('SELECT * FROM equipment WHERE id = ?', id).first
+      render.erb('\test.erb', binding)
     end
 
-    router.get '/hello' do
-      render.erb("\hello.erb", binding)
-    end
+    #router.get '/hello' do
+    #  render.erb("\hello.erb", binding)
+    #end
+
   end
 
   def start
