@@ -1,8 +1,6 @@
+require 'erb'
 class Render
-  def initialize
-  end
-
-  def erb(template, block_binding)
+  def self.erb(template, block_binding)
     template_path = File.join("views", "#{template}")
     raise "Template not found: #{template_path}" unless File.exist?(template_path)
     erb_content = File.read(template_path)

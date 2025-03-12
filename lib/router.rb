@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 require 'cgi'
+require_relative 'mimes'
 
 class Router
+  attr_accessor :routes
   def initialize
     @routes = []
     add_public_routes
@@ -14,22 +16,21 @@ class Router
     end
   end
 
-  def add_route(method, resource, block)
+  def route(method, resource, block)
     resource = Regexp.new(resource.gsub(/:\w+/, '(\\w+)'))
     @routes << { method: method, resource: resource, block: block }
   end
 
   def get(resource, &block)
-    add_route(:get, resource, block)
+    route(:get, resource, block)
   end
 
   def post(resource, &block)
-    add_route(:post, resource, block)
+    route(:post, resource, block)
   end
 
   def match_route(request)
-    
-    puts "\nmatching #{request.resource}..."
+    puts "\nmatching #{request.method} #{request.resource}..."
     route = find_route(request)
 
     route ? process_route(route, request) : not_found_response
@@ -64,21 +65,24 @@ class Router
   def execute_dynamic_route(route, request)
     match_data = route[:resource].match(request.resource)
     content = route[:block].call(*match_data.captures)
-    success_response(content)
+    success_response(content, 'text/html')
   end
 
   def serve_static_asset(route)
-    content = File.binread("public#{route[:resource]}")
-    success_response(content)
+    asset_path = "public#{route[:resource]}"
+    content = File.binread(asset_path)
+    File.extname(asset_path)
+    content_type = Mime.to_mime(File.extname(asset_path))
+    success_response(content, content_type)
   end
 
-  def success_response(content)
-    [200, content]
+  def success_response(content, content_type)
+    [200, content, content_type]
   end
 
   def not_found_response(message = 'Page not found')
     log_error(message)
-    [404, "<h1>404: #{ERB::Util.html_escape(message)}</h1>"]
+    [404, "<h1>404: #{message}</h1>", 'text/html']
   end
 
   #Helper saker: Ta bort innan inlämning
