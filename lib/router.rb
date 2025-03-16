@@ -30,10 +30,10 @@ class Router
   end
 
   def match_route(request)
-    puts "\nmatching #{request.method} #{request.resource}..."
+    #puts "\nmatching #{request.method} #{request.resource}..."
     route = find_route(request)
 
-    route ? process_route(route, request) : not_found_response
+    route ? process_route(route, request) : not_found_response(request.resource)
   end
 
   private
@@ -50,7 +50,7 @@ class Router
   end
 
   def process_route(route, request)
-    log_match(route)
+    #log_match(route)
     if dynamic_route?(route)
       execute_dynamic_route(route, request)
     else
@@ -64,25 +64,40 @@ class Router
 
   def execute_dynamic_route(route, request)
     match_data = route[:resource].match(request.resource)
-    content = route[:block].call(*match_data.captures)
-    success_response(content, 'text/html')
+    result = route[:block].call(*match_data.captures)
+    if result.is_a?(Response)
+      [result.status, result.body, result.headers]
+    else
+      content_type = 'text/html'
+      headers = content_type_header(content_type)
+      [200, result, headers]
+    end
   end
 
   def serve_static_asset(route)
     asset_path = "public#{route[:resource]}"
     content = File.binread(asset_path)
-    File.extname(asset_path)
     content_type = Mime.to_mime(File.extname(asset_path))
-    success_response(content, content_type)
+    headers = {}
+    headers['Content-Type: '] = content_type
+    headers['Cache-Control: '] = 'max-age=31536000'
+
+    [200, content, headers]
+  end
+
+  def content_type_header(content_type)
+    { 'Content-Type: ' => content_type }
   end
 
   def success_response(content, content_type)
     [200, content, content_type]
   end
 
-  def not_found_response(message = 'Page not found')
+  def not_found_response(resource, message = 'Page not found')
     log_error(message)
-    [404, "<h1>404: #{message}</h1>", 'text/html']
+    content_type = (mime_type = Mime.to_mime(File.extname(resource))) ? mime_type : ''
+    
+    [404, "<h1>404: #{message}</h1>", content_type_header(content_type)]
   end
 
   #Helper saker: Ta bort innan inlämning

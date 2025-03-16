@@ -7,50 +7,55 @@ require_relative 'response'
 
 class HTTPServer
 
-  def initialize(router, port=4567)
+  def initialize(router, port = 4567)
     @port = port
     @router = router
-    @response
-    @request
+    @params = {}
   end
 
   def start()
-    server = TCPServer.new(@port)
+    puts "Listening on #{@port}"
 
-    while (session = server.accept)
-      data = listen_to session
-
-      @request = Request.new(data)
-
-      finish(@request, session)
-    end
+    Socket.tcp_server_loop(@port) {|sock, client_addrinfo|
+      Thread.new {
+          begin
+             data = read_stream sock
+             @request = Request.new(data)
+             #puts "-Data-"+"-"*40
+             #puts data
+             #puts "-Params-"+"-"*40
+             @request.params
+             finish(@request, sock)
+          ensure
+            sock.close
+          end
+        }
+    }
   end
 
-  def listen_to(session)
+  def read_stream(socket)
     data = ''
-    while ((line = session.gets)) && line !~ (/^\s*$/)
+    while ((line = socket.gets)) && line !~ (/^\s*$/)
       data += line
+    end
+
+    content_length = data[/^Content-Length: (\d+)/i, 1].to_i
+
+    if content_length > 0
+      data += "\r\n"
+      data += socket.read(content_length)
     end
     data
   end
 
   def finish(request, session)
-    @response = Response.new(session)
-    status, content, content_type = @router.match_route(request)
-    @response[session, status, {}, content]
-
-    @response.content_type = content_type
+    status, body, headers = @router.match_route(request)
+    @response = Response[session, status, headers, body]
     @response.respond
   end
 
-  def self.run(router, port=4567)
-    puts "Listening on #{port}"
-    http_server = HTTPServer.new router
-    http_server.start()
-  end
-
-  def self.redirect(location, status=302)
-    @response.redirect(location, status)
+  def params()
+    @request.params
   end
 end
 
