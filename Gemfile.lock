@@ -48,6 +48,7 @@ GEM
     sqlite3 (2.6.0-x64-mingw-ucrt)
     stringio (3.1.2)
     unicode-display_width (2.6.0)
+    yard (0.9.37)
 
 PLATFORMS
   x64-mingw-ucrt
@@ -58,6 +59,7 @@ DEPENDENCIES
   minitest-reporters (~> 1.7)
   rubocop
   sqlite3
+  yard
 
 BUNDLED WITH
    2.5.11

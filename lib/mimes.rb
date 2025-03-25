@@ -1,4 +1,5 @@
 class Mime
+   # Provides functionality for retrieving MIME types based on file extensions.
   MIME_TYPES = {
       ".123"       => "application/vnd.lotus-1-2-3",
       ".3dml"      => "text/vnd.in3d.3dml",
@@ -642,8 +643,17 @@ class Mime
       ".zmm"       => "application/vnd.handheld-entertainment+xml",
     }
 
+  # Retrieves the MIME type associated with a given file extension.
+  #
+  # @param ext [String] The file extension (e.g. ".html", ".jpg").
+  # @return [String] The MIME type associated with the file extension.
+  # @raise [KeyError] If the extension is not found in the MIME_TYPES hash.
   def self.to_mime(ext)
-    MIME_TYPES[ext]
+    if (found_mime = MIME_TYPES[ext])
+      found_mime
+    else
+      'text/html;charset=utf-8'
+    end
   end
 end
 

@@ -6,8 +6,7 @@ require 'sqlite3'
 
 class App < HTTPServer
   def initialize
-    @router = Router.new
-    @server = super @router, 4567
+    super 4567
 
     def self.db
       return @db if @db
@@ -17,7 +16,7 @@ class App < HTTPServer
       return @db
     end
   
-    @router.get '/index/:id/:a/:b' do |id, a, b|
+    get '/index/:id/:a/:b' do |id, a, b|
       @id = id
       @a = a.to_i
       @b = b.to_i
@@ -27,15 +26,19 @@ class App < HTTPServer
       Render.erb('\test.erb', binding)
     end
 
-    @router.post '/restart' do
-      params
-      Response.new.redirect '/index/1/2/3'
+    get '/newsite' do |id, a, b|
+      Render.erb('\hello.erb', binding)
     end
 
-    @router.post '/add' do
+    post '/restart' do
+      params
+      redirect '/index/1/2/3'
+    end
+
+    post '/add' do
       input_values = [params['article'], params['description'], params['category']]
       db.execute('INSERT INTO equipment (article, description, category) VALUES(?, ?, ?)', input_values)
-      Response.new.redirect '/index/1/2/3'
+      redirect '/index/1/2/3'
     end
   end
 end
